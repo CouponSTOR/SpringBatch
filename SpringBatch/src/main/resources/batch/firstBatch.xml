@@ -7,12 +7,82 @@ http://www.springframework.org/schema/batch
 http://www.springframework.org/schema/batch/spring-batch-3.0.xsd">
 	<beans:import resource="context.xml" />
 	<beans:bean id="firstBatch" class="batch.FirstBatch" />
-	
+
+	<beans:bean id="employeeFile"
+		class="org.springframework.core.io.FileSystemResource" scope="step">
+		<beans:constructor-arg value="#{jobParameters[employeeFile]}" />
+	</beans:bean>
+	<beans:bean id="employeeReader"
+		class="org.springframework.batch.item.file.FlatFileItemReader">
+		<beans:property name="resource" ref="employeeFile" />
+		<beans:property name="lineMapper">
+			<beans:bean
+				class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<beans:property name="lineTokenizer">
+					<beans:bean
+						class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+						<beans:property name="names"
+							value="ID, lastName, firstName, designation, department, yearOfJoining" />
+						<beans:property name="columns"
+							value="1-2,3-12,13-22,23-32,33-47,48-51" />
+					</beans:bean>
+				</beans:property>
+				<beans:property name="fieldSetMapper">
+					<beans:bean
+						class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+						<beans:property name="prototypeBeanName" value="employee" />
+					</beans:bean>
+				</beans:property>
+			</beans:bean>
+		</beans:property>
+	</beans:bean>
+	<beans:bean id="employee" class="batch.Employee" scope="prototype" />
+
+
+	<beans:bean id="employeeFileReader"
+		class="org.springframework.batch.item.file.FlatFileItemReader">
+		<beans:property name="resource" ref="employeeFile" />
+		<beans:property name="lineMapper">
+			<beans:bean
+				class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<beans:property name="lineTokenizer">
+					<beans:bean
+						class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+						<beans:property name="names"
+							value="ID, lastName, firstName, designation, department, yearOfJoining" />
+						<beans:property name="delimiter" value="," />
+					</beans:bean>
+				</beans:property>
+				<beans:property name="fieldSetMapper">
+					<beans:bean class="batch.EmployeeFieldSetMapper" />
+				</beans:property>
+			</beans:bean>
+		</beans:property>
+	</beans:bean>
+
+<!-- 	<beans:bean id="employeeFileLineMapper"
+		class=" org.springframework.batch.item.file.mapping.PatternMatchingCompositeLineMapper">
+		<beans:property name="tokenizers">
+			<beans:map>
+				<beans:entry key="EMPLOYEE*" value-ref="employeeTokenizer" />
+				<beans:entry key="BANKINFO*" value-ref="bankInfoTokenizer" />
+				<beans:entry key="ADDRESSINFO*" value-ref="addressInfoTokenizer" />
+			</beans:map>
+		</beans:property>
+		<beans:property name="fieldSetMappers">
+			<beans:map>
+				<beans:entry key="EMPLOYEE*" value-ref="employeeFieldSetMapper" />
+				<beans:entry key="BANKINFO*" value-ref="bankInfoFieldSetMapper" />
+				<beans:entry key="ADDRESSINFO*" value-ref="addressInfoFieldSetMapper" />
+			</beans:map>
+		</beans:property>
+	</beans:bean>
+ -->
 	<step id="firstBatchStepOne">
 		<tasklet ref="firstBatch" />
 	</step>
-	
-	
+
+
 	<job id="firstBatchJob">
 		<step id="stepOne" parent="firstBatchStepOne" />
 	</job>

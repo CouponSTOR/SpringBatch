@@ -1,0 +1,6 @@
+11Alden     Richie    associate sales          1996
+12Casey     Stanley   manager   sales          1999
+13Rex       An        architect development    2001
+14Royce     Dan       writer    development    2006
+15Merlin    Sams      accountantfinance        1995
+16Olin      Covey     manager   finance        1989
